@@ -3,6 +3,7 @@ from .metrics import (
     MeanAbsoluteError,
     MeanSquaredError,
     RootMeanSquaredError,
+    MaximumAbsoluteError,
     HuberLoss,
     StratifiedHuberForceLoss,
 )
@@ -19,12 +20,14 @@ from .lightning import NequIPLightningModule
 from .ema import EMALightningModule
 from .config import ConFIGLightningModule, EMAConFIGLightningModule
 from .simple_ddp import SimpleDDPStrategy
+from .schedulefree import ScheduleFreeLightningModule
 
 __all__ = [
     "NequIPLightningModule",
     "EMALightningModule",
     "ConFIGLightningModule",
     "EMAConFIGLightningModule",
+    "ScheduleFreeLightningModule",
     "MetricsManager",
     "EnergyForceLoss",
     "EnergyForceMetrics",
@@ -35,6 +38,7 @@ __all__ = [
     "MeanAbsoluteError",
     "MeanSquaredError",
     "RootMeanSquaredError",
+    "MaximumAbsoluteError",
     "HuberLoss",
     "StratifiedHuberForceLoss",
     "SimpleDDPStrategy",
