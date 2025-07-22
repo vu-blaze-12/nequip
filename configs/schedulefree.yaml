@@ -70,12 +70,7 @@ trainer:
 training_module:
   _target_: nequip.train.ScheduleFreeLightningModule
 
-  # Supported Schedule-Free hyperparameters
-  sf_lr: 0.01
-  sf_weight_decay: 1e-4
-  sf_momentum: 0.9
-  sf_warmup_steps: 0
-
+  
   loss:
     _target_: nequip.train.EnergyForceLoss
     per_atom_energy: true
@@ -91,8 +86,9 @@ training_module:
   test_metrics: ${training_module.val_metrics}
 
   optimizer:
-    _target_: torch.optim.Adam
     lr: 0.01
+    weight_decay: 1e-4
+    warmup_steps: 0
 
   # lr_scheduler is ignored by ScheduleFreeWrapper; keep it for compatibility
   lr_scheduler:
