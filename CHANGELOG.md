@@ -8,6 +8,8 @@ Most recent change on the top.
 
 ## Unreleased
 
+### Added
+- ScheduleFreeLightningModule: New LightningModule subclass that integrates Facebook's AdamWScheduleFree optimizer to enable schedule-free training in NequIP.
 
 ## [0.12.1]
 
