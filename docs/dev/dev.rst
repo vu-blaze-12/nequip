@@ -4,5 +4,7 @@ Developer Guide
 .. toctree::
 
    contributing
-   under_the_hood
+   training_infrastructure
+   custom_models/index
+   workflows/index
    ../README

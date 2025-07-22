@@ -11,7 +11,7 @@ OpenEquivariance only works with {func}`~nequip.model.NequIPGNNModel`.
 
 - [PyTorch](https://pytorch.org/) >= 2.4
 - CUDA-compatible GPU (NVIDIA or AMD with HIP support)
-- [OpenEquivariance library installed](https://github.com/PASSIONLab/OpenEquivariance#installation)
+- [OpenEquivariance](https://github.com/PASSIONLab/OpenEquivariance) library installed, i.e. `pip install openequivariance`
 - GCC 9+ for compilation
 
 ## Training with OpenEquivariance
@@ -41,6 +41,8 @@ training_module:
 ```
 
 The {func}`~nequip.model.modify` function wraps your base model and applies the specified modifiers. The `enable_OpenEquivariance` modifier serves as a drop-in replacement for standard tensor product operations, utilizing JIT kernel generation for optimal performance.
+
+OpenEquivariance composes with [`torch.compile`](https://pytorch.org/docs/stable/generated/torch.compile.html), and can be used in conjunction with [train-time compilation](pt2_compilation.md), provided the NequIP version is at least v0.12.0 and OpenEquivariance installation is at least v0.3.0.
 
 ## Inference with OpenEquivariance
 
@@ -83,3 +85,5 @@ atoms.calc = calc
 energy = atoms.get_potential_energy()
 forces = atoms.get_forces()
 ```
+
+If `openequivariance` is not imported before model loading, this error will be thrown: `RuntimeError: Couldn't resolve type '{}', did you forget to add its build dependency?__torch__.torch.classes.libtorch_tp_jit.TorchJITConv`.

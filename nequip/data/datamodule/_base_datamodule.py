@@ -140,6 +140,9 @@ class NequIPDataModule(lightning.LightningDataModule):
                 dataloader_dict = OmegaConf.to_container(
                     dataloader_dict.copy(), resolve=True
                 )
+            # provide a default just in case
+            if "_target_" not in dataloader_dict:
+                dataloader_dict["_target_"] = "torch.data.utils.DataLoader"
             assert "dataset" not in dataloader_dict
             assert "generator" not in dataloader_dict
             if "collate_fn" not in dataloader_dict:
@@ -210,19 +213,26 @@ class NequIPDataModule(lightning.LightningDataModule):
 
     def teardown(self, stage: str):
         """"""
-        self.generator_state = self.generator.get_state()
-        del self.generator
+        if hasattr(self, "generator"):
+            self.generator_state = self.generator.get_state()
+            del self.generator
         if stage == "fit":
-            del self.train_dataset
-            del self.val_dataset
-            self.train_generator_state = self.train_generator.get_state()
-            del self.train_generator
+            if hasattr(self, "train_dataset"):
+                del self.train_dataset
+            if hasattr(self, "val_dataset"):
+                del self.val_dataset
+            if hasattr(self, "train_generator"):
+                self.train_generator_state = self.train_generator.get_state()
+                del self.train_generator
         elif stage == "validate":
-            del self.val_dataset
+            if hasattr(self, "val_dataset"):
+                del self.val_dataset
         elif stage == "test":
-            del self.test_dataset
+            if hasattr(self, "test_dataset"):
+                del self.test_dataset
         elif stage == "predict":
-            del self.predict_dataset
+            if hasattr(self, "predict_dataset"):
+                del self.predict_dataset
 
     def train_dataloader(self):
         """"""
@@ -251,6 +261,10 @@ class NequIPDataModule(lightning.LightningDataModule):
         )
 
     def _get_dloader(self, datasets, generator, dataloader_dict):
+        if "_target_" not in dataloader_dict:
+            raise RuntimeError(
+                f"`_target_` is missing from the dataloder dict: {dataloader_dict}"
+            )
         return [
             instantiate(
                 dataloader_dict,

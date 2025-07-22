@@ -8,6 +8,43 @@ Most recent change on the top.
 
 ## Unreleased
 
+
+## [0.12.1]
+
+### Added
+- `MaximumAbsoluteError` metric
+
+### Changed
+- Update `SoftAdapt` callback to weight loss coefficient updates by the chosen (initial) loss coefficients.
+
+### Fixed
+- `PerTypeScaleShift` model modifier shape bug
+- `WandbWatch` callback typo in docstring
+- Broken links to get `fcu.xyz` example dataset for tutorials/examples
+- `nequip-package` will now always pick up OEQ file even if OEQ is not installed at package time
+
+
+## [0.12.0]
+
+### Added
+- `SAM23DataModule`: Specialized datamodule for Samsung's SAMD23 dataset (HfO and SiN systems), with automatic download, extraction, and optional OOD test set support.
+
+### Fixed
+- Train-time compile compatibility of OpenEquivariance accelerated NequIP models
+
+### Removed
+- [Breaking] Python 3.9 support has been removed
+
+
+## [0.11.1]
+
+### Fixed
+- Fixed per-edge-type cutoff metadata parsing when loading compiled models
+
+### Changed
+- Change to make train-time compile works with PyTorch 2.8.0 -- train-time compile won't work with PyTorch 2.8.0 and NequIP versions before v0.11.1
+
+
 ## [0.11.0]
 
 ### Added
@@ -30,6 +67,7 @@ Most recent change on the top.
 - OpenEquivariance acceleration for NequIP GNN models
 - `SortedNeighborListTransform` for sorted neighborlists with permutation indices to get a sorted transpose
 - Per-edge-type cutoff-aware neighborlist transform
+
 
 ## [0.9.1]
 
@@ -59,6 +97,7 @@ Most recent change on the top.
 ### Removed
 - [Breaking] train-time TorchScript
 
+
 ## [0.7.1]
 
 ### Fixed
@@ -75,6 +114,7 @@ Most recent change on the top.
 
 ## [0.7.0]
 A major backwards-incompatible update with breaking changes throughout the code.
+
 
 ## [0.6.2] - 2025-3-22
 
