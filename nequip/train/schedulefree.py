@@ -1,8 +1,6 @@
-import torch
 from .lightning import NequIPLightningModule
 from schedulefree import AdamWScheduleFree
-from nequip.data import AtomicDataDict
-from typing import Optional, Dict
+from typing import Dict
 
 
 class ScheduleFreeLightningModule(NequIPLightningModule):
@@ -16,7 +14,6 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
         optimizer (Dict): Dictionary of keyword arguments compatible with
             AdamWScheduleFree. See: https://github.com/facebookresearch/schedule_free/blob/main/schedulefree/adamw_schedulefree.py
     """
-
     def __init__(
         self,
         optimizer: Dict,
