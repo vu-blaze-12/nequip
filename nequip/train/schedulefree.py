@@ -34,20 +34,16 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
 
     def on_train_epoch_start(self):
         for opt in self.trainer.optimizers:
-            if hasattr(opt, "train"):
-                opt.train()
+            opt.train()
 
     def on_validation_epoch_start(self):
         for opt in self.trainer.optimizers:
-            if hasattr(opt, "eval"):
-                opt.eval()
+            opt.eval()
 
     def on_test_epoch_start(self):
         for opt in self.trainer.optimizers:
-            if hasattr(opt, "eval"):
-                opt.eval()
+            opt.eval()
 
     def on_predict_epoch_start(self):
         for opt in self.trainer.optimizers:
-            if hasattr(opt, "eval"):
-                opt.eval()
+            opt.eval()
