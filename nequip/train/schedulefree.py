@@ -37,12 +37,17 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
         super().__init__(optimizer=optimizer, **kwargs)
 
     def on_save_checkpoint(self, checkpoint: dict):
+        self.model.eval()
         opt = self.optimizers()
         if opt is not None:
             try:
+                opt.eval()
                 checkpoint["schedulefree_optimizer_state_dict"] = opt.state_dict()
             except Exception as e:
-                logger.warning(f"Schedule-Free state_dict() failed: {e}")
+                logger.warning(f"Schedule-Free eval() failed: {e}")
+            finally:
+                self.model.train()
+                opt.train()
 
     def on_load_checkpoint(self, checkpoint: dict):
         state = checkpoint.get("schedulefree_optimizer_state_dict")
@@ -55,6 +60,7 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
     @property
     def evaluation_model(self) -> torch.nn.Module:
         logger.info("Loading Schedule-Free optimizer weights for evaluation.")
+
         prev_state_dict = getattr(self, "_schedulefree_state_dict", None)
 
         opt = self.configure_optimizers()
@@ -74,26 +80,25 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
 
         return self.model
 
-    def on_validation_epoch_start(self) -> None:
-        self.model.eval()
-        opt = self.optimizers()
-        if opt is not None:
-            opt.eval()
+    def on_fit_start(self) -> None:
+        self.optimizers().train()
 
-    def on_train_epoch_start(self) -> None:
+    def on_validation_model_eval(self) -> None:
+        self.model.eval()
+        self.optimizers().eval()
+
+    def on_validation_model_train(self) -> None:
         self.model.train()
-        opt = self.optimizers()
-        if opt is not None:
-            opt.train()
+        self.optimizers().train()
 
-    def on_test_epoch_start(self) -> None:
+    def on_test_model_eval(self) -> None:
         self.model.eval()
-        opt = self.optimizers()
-        if opt is not None:
-            opt.eval()
+        self.optimizers().eval()
 
-    def on_predict_epoch_start(self) -> None:
+    def on_test_model_train(self) -> None:
+        self.model.train()
+        self.optimizers().train()
+
+    def on_predict_model_eval(self) -> None:
         self.model.eval()
-        opt = self.optimizers()
-        if opt is not None:
-            opt.eval()
+        self.optimizers().eval()
