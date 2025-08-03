@@ -58,8 +58,6 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
         prev_state_dict = getattr(self, "_schedulefree_state_dict", None)
 
         opt = self.configure_optimizers()
-        if isinstance(opt, (list, tuple)):
-            opt = opt[0]
 
         if prev_state_dict:
             try:
@@ -74,17 +72,18 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
 
         return self.model
 
-    def on_fit_start(self) -> None:
+    def on_validation_epoch_start(self) -> None:
+        self.model.eval()
+        self.optimizers().eval()
+
+    def on_train_epoch_start(self) -> None:
+        self.model.train()
         self.optimizers().train()
 
-    def on_validation_model_eval(self) -> None:
+    def on_test_epoch_start(self) -> None:
         self.model.eval()
         self.optimizers().eval()
 
-    def on_test_model_eval(self) -> None:
-        self.model.eval()
-        self.optimizers().eval()
-
-    def on_predict_model_eval(self) -> None:
+    def on_predict_epoch_start(self) -> None:
         self.model.eval()
         self.optimizers().eval()
