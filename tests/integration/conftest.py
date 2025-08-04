@@ -79,7 +79,7 @@ def fake_model_training_session(
         conffile,
         model_dtype,
         extra_train_from_save=extra_train_from_save,
-        training_module_override_dict=training_module_override_dict,  
+        training_module_override_dict=training_module_override_dict,
     )
     config, tmpdir, env = next(session)
     yield config, tmpdir, env, model_dtype

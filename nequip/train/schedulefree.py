@@ -19,6 +19,11 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
 
     Related discussion on Lightning timing hooks:
     https://github.com/Lightning-AI/pytorch-lightning/discussions/19759
+
+    Args:
+        optimizer (Dict[str, Any]): Dictionary that must include a _target_
+            corresponding to one of the Schedule-Free optimizers and other keyword arguments
+            compatible with the Schedule-Free variants.
     """
 
     def __init__(self, optimizer: Dict[str, Any], **kwargs):
