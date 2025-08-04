@@ -73,17 +73,13 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
         return self.model
 
     def on_validation_epoch_start(self) -> None:
-        self.model.eval()
         self.optimizers().eval()
 
     def on_train_epoch_start(self) -> None:
-        self.model.train()
         self.optimizers().train()
 
     def on_test_epoch_start(self) -> None:
-        self.model.eval()
         self.optimizers().eval()
 
     def on_predict_epoch_start(self) -> None:
-        self.model.eval()
         self.optimizers().eval()
