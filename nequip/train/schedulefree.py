@@ -14,10 +14,11 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
     This module wraps the model's optimizer in one of Facebook's Schedule-Free variants.
     See: https://github.com/facebookresearch/schedule_free
 
-    Args:
-        optimizer (Dict[str, Any]): Dictionary that must include a _target_
-            corresponding to one of the Schedule-Free optimizers and other keyword arguments
-            compatible with the Schedule-Free variants.
+    Note: Manual `.train()`/`.eval()` mode control for optimizer is required
+    to ensure smoothed weights are captured at the right time
+
+    Related discussion on Lightning timing hooks:
+    https://github.com/Lightning-AI/pytorch-lightning/discussions/19759
     """
 
     def __init__(self, optimizer: Dict[str, Any], **kwargs):
@@ -33,18 +34,23 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
                 f"but found '{target}'"
             )
 
+        # Will be used to lazily restore optimizer state in evaluation_model
         self._schedulefree_state_dict: Dict[str, Any] = {}
+
         super().__init__(optimizer=optimizer, **kwargs)
 
+    #  Lightning Hook
     def on_save_checkpoint(self, checkpoint: dict):
+        # Schedule-Free optimizers require .eval() to expose smoothed weights.
+        # This hook is called AFTER Lightning has already saved model/optimizer state,
+        # so we only store the smoothed state_dict here for packaging.
         opt = self.optimizers()
         if opt is not None:
-            try:
-                checkpoint["schedulefree_optimizer_state_dict"] = opt.state_dict()
-            except Exception as e:
-                logger.warning(f"Schedule-Free state_dict() failed: {e}")
+            checkpoint["schedulefree_optimizer_state_dict"] = opt.state_dict()
 
+    #  Lightning Hook
     def on_load_checkpoint(self, checkpoint: dict):
+        # We extract our custom optimizer state for later lazy loading
         state = checkpoint.get("schedulefree_optimizer_state_dict")
         if state is not None:
             logger.info(
@@ -52,34 +58,39 @@ class ScheduleFreeLightningModule(NequIPLightningModule):
             )
             self._schedulefree_state_dict = state
 
+    #  NequIP-Specific Override for Packaging
     @property
     def evaluation_model(self) -> torch.nn.Module:
+        # This is used during packaging to get the smoothed evaluation weights.
         logger.info("Loading Schedule-Free optimizer weights for evaluation.")
-        prev_state_dict = getattr(self, "_schedulefree_state_dict", None)
 
+        prev_state_dict = getattr(self, "_schedulefree_state_dict", None)
         opt = self.configure_optimizers()
 
         if prev_state_dict:
-            try:
-                opt.load_state_dict(prev_state_dict)
-            except Exception as e:
-                logger.warning(f"Failed to load Schedule-Free optimizer state: {e}")
+            opt.load_state_dict(prev_state_dict)
 
-        try:
-            opt.eval()
-        except Exception as e:
-            logger.warning(f"Schedule-Free optimizer eval() failed: {e}")
+        # Set optimizer to evaluation mode for smoothed weights
+        opt.eval()
 
         return self.model
 
-    def on_validation_epoch_start(self) -> None:
-        self.optimizers().eval()
-
+    #  Lightning Hook
     def on_train_epoch_start(self) -> None:
+        # Ensures fast weights are used during training
         self.optimizers().train()
 
-    def on_test_epoch_start(self) -> None:
+    #  Lightning Hook
+    def on_validation_epoch_start(self) -> None:
+        # Ensures smoothed weights are used for validation
         self.optimizers().eval()
 
+    #  Lightning Hook
+    def on_test_epoch_start(self) -> None:
+        # Ensures smoothed weights are used during testing
+        self.optimizers().eval()
+
+    #  Lightning Hook
     def on_predict_epoch_start(self) -> None:
+        # Ensures smoothed weights are used during prediction/inference
         self.optimizers().eval()

@@ -18,7 +18,7 @@ except ImportError:
 
 
 # available training modules for integration tests
-# to save time, we only check the EMA and ScheduleFree ones for now
+# to save time, we only check the EMA ones for now
 _ALL_TRAINING_MODULES = [
     # "nequip.train.NequIPLightningModule",
     "nequip.train.EMALightningModule",
@@ -79,7 +79,7 @@ def fake_model_training_session(
         conffile,
         model_dtype,
         extra_train_from_save=extra_train_from_save,
-        training_module_override_dict=training_module_override_dict,  # NEW ARG
+        training_module_override_dict=training_module_override_dict,  
     )
     config, tmpdir, env = next(session)
     yield config, tmpdir, env, model_dtype
